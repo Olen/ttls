@@ -327,6 +327,26 @@ class Twinkly(object):
             headers={"Content-Type": "application/octet-stream"},
         )
 
+   async def set_rolling_colour(
+        self, colour: Union[TwinklyColour, List[TwinklyColour]]
+    ) -> None:
+        if isinstance(colour, Tuple):
+            sequence = [colour]
+        else:
+            sequence = colour
+        frame = list(islice(cycle(sequence), self.length))
+        movie = bytes([item for t in frame for item in t])
+        await self.upload_movie(movie)
+        await self.set_movie_config(
+            {
+                "frames_number": 1,
+                "loop_type": 0,
+                "frame_delay": 1000,
+                "leds_number": self.length,
+            }
+        )
+        await self.set_mode("movie")
+      
     async def set_static_colour(
         self, colour: Union[TwinklyColour, List[TwinklyColour]]
     ) -> None:
